@@ -1,5 +1,5 @@
 import React from 'react';
-import api from '../utils/Api.js';
+import api from '../utils/api.js';
 import Card from './Card.js';
 
 function Main ({ onEditProfile, onAddPlace, onEditAvatar, onCardClick }) {
@@ -15,18 +15,16 @@ function Main ({ onEditProfile, onAddPlace, onEditAvatar, onCardClick }) {
       setUserName(userData.name);
       setUserDescription(userData.about);
       setUserAvatar(userData.avatar);
-    })  
+    })
+    .catch((error) => alert(error)) 
   }, []);
 
   React.useEffect(() => {
     api.getAllCards()
     .then(data => {
-      setCards(data.map((item) => ({
-        id: item._id,
-        link: item.link,
-        name: item.name
-      })))
+      setCards(data);
     })
+    .catch((error) => alert(error))
   }, []);
 
   return (
@@ -56,7 +54,7 @@ function Main ({ onEditProfile, onAddPlace, onEditAvatar, onCardClick }) {
       <section className="cards-grid">
         <ul className="cards-grid__list">
           {
-            cards.map(({ id, ...props}) => <Card key={id} {...props} onCardClick={onCardClick}/>)
+            cards.map(({ _id, ...props}) => <Card key={_id} {...props} onCardClick={onCardClick}/>)
           }
         </ul>
       </section>      

@@ -7,21 +7,21 @@ import PopupWithForm from './PopupWithForm';
 import ImagePopup from './ImagePopup';
 
 function App() {
-  const [ isEditProfilePopupOpen, setEditProfilePopupOpen ] = React.useState(false);
-  const [ isAddPlacePopupOpen, setAddPlacePopupOpen ] = React.useState(false);
-  const [ isEditAvatarPopupOpen, setEditAvatarPopupOpen ] = React.useState(false);
+  const [ isEditProfilePopupOpen, setIsEditProfilePopupOpen ] = React.useState(false);
+  const [ isAddPlacePopupOpen, setIsAddPlacePopupOpen ] = React.useState(false);
+  const [ isEditAvatarPopupOpen, setIsEditAvatarPopupOpen ] = React.useState(false);
   const [ selectedCard, setSelectedCard ] = React.useState(null); 
 
   const handleEditProfileClick = () => {
-    setEditProfilePopupOpen(true);
+    setIsEditProfilePopupOpen(true);
   };
 
   const handleEditAvatarClick = () => {
-    setEditAvatarPopupOpen(true);
+    setIsEditAvatarPopupOpen(true);
   };
 
   const handleAddPlaceClick = () => {
-    setAddPlacePopupOpen(true);
+    setIsAddPlacePopupOpen(true);
   };
 
   const handleCardClick = (card) => {
@@ -36,9 +36,9 @@ function App() {
   }
 
   const closeAllPopups = () => {
-    setEditProfilePopupOpen(false);
-    setEditAvatarPopupOpen(false);
-    setAddPlacePopupOpen(false);
+    setIsEditProfilePopupOpen(false);
+    setIsEditAvatarPopupOpen(false);
+    setIsAddPlacePopupOpen(false);
     setSelectedCard(null);
   };
 
@@ -77,59 +77,50 @@ function App() {
 
       <PopupWithForm 
         title='Редактировать профиль'
-        children={
-          <>
-          <input id="name-input" name="name" type="text" className="form__input form__input_text_name" 
-            placeholder="Имя" minLength="2" maxLength="40" required />
-          <span id="name-input-error" className="form__input-error"></span>
-
-          <input id="about-input" name="about" type="text" className="form__input form__input_text_job" 
-            placeholder="Род деятельности" minLength="2" maxLength="200" required />
-          <span id="about-input-error" className="form__input-error"></span>
-          </>
-        }
         btnTitle='Сохранить'
         name='edit'
         isOpen={isEditProfilePopupOpen}
         onClose={closeAllPopups}
         overlayClick={handleClosePopupOverlay}
-      />
+      >
+        <input id="name-input" name="name" type="text" className="form__input form__input_text_name" 
+          placeholder="Имя" minLength="2" maxLength="40" required />
+        <span id="name-input-error" className="form__input-error"></span>
+
+        <input id="about-input" name="about" type="text" className="form__input form__input_text_job" 
+          placeholder="Род деятельности" minLength="2" maxLength="200" required />
+        <span id="about-input-error" className="form__input-error"></span>
+      </PopupWithForm>
 
       <PopupWithForm
         title='Новое место'
-        children={
-          <>
-            <input id="name-input" name = "name" type="text" className="form__input form__input_text_place" 
-              placeholder="Название" minLength="1" maxLength="30" required />
-            <span id="name-input-error" className="form__input-error"></span>
-
-            <input id="url-input" name = "link" type="url" className="form__input form__input_text_link" 
-              placeholder="Ссылка на картинку" required />
-            <span id="url-input-error" className="form__input-error"></span>  
-          </>
-        }
         btnTitle='Создать'
         name='add'
         isOpen={isAddPlacePopupOpen}
         onClose={closeAllPopups}
         overlayClick={handleClosePopupOverlay}
-      />
+      >
+        <input id="name-input" name = "name" type="text" className="form__input form__input_text_place" 
+          placeholder="Название" minLength="1" maxLength="30" required />
+        <span id="name-input-error" className="form__input-error"></span>
+
+        <input id="url-input" name = "link" type="url" className="form__input form__input_text_link" 
+          placeholder="Ссылка на картинку" required />
+        <span id="url-input-error" className="form__input-error"></span>       
+      </PopupWithForm>
 
       <PopupWithForm
         title='Обновить аватар'
-        children={
-          <>
-            <input id="url-input" name="avatar" type="url" className="form__input form__input_text_link" 
-              placeholder="Ссылка на картинку" required />
-            <span id="url-input-error" className="form__input-error"></span>  
-          </>
-        }
         btnTitle='Сохранить'
         name='update-avatar'
         isOpen={isEditAvatarPopupOpen}
         onClose={closeAllPopups}
         overlayClick={handleClosePopupOverlay}
-      />
+      >  
+        <input id="url-input" name="avatar" type="url" className="form__input form__input_text_link" 
+          placeholder="Ссылка на картинку" required />
+        <span id="url-input-error" className="form__input-error"></span>  
+      </PopupWithForm>
 
       <PopupWithForm
         title='Вы уверены?'

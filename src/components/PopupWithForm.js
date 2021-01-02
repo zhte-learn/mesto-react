@@ -1,10 +1,17 @@
-function PopupWithForm ( {title, children, btnTitle, name} ) {
-  return (
-    <div className={`popup popup_${name}`}>
-      <div className="popup__container popup__container_with-form"> 
-        <button className="popup__close" type="button" aria-label="Закрыть попап"></button>
+function PopupWithForm ( {title, children, btnTitle, name, isOpen, onClose, overlayClick} ) {
 
-        <form className={`form form_${name}`} method="POST" name={`${name}Form`} novalidate>  
+  return (
+    <div 
+    className={ `popup popup_${name} ${isOpen && 'popup_opened'}` } onClick={overlayClick}>
+      <div className="popup__container popup__container_with-form"> 
+        <button
+          className="popup__close"
+          type="button"
+          aria-label="Закрыть попап"
+          onClick={onClose}>
+        </button>
+          
+        <form className={`form form_${name}`} method="POST" name={`${name}Form`} noValidate>  
           <h3 className="popup__title form__title">{title}</h3>
           {children}
           <button className="form__button form__button_inactive" type="submit" disabled>{btnTitle}</button>

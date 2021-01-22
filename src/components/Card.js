@@ -14,19 +14,26 @@ function Card (props) {
     `button button_action_like ${isLiked && 'button_action_like_active'}`
   );
   
-  function handleClick () {
+  function handleClick() {
     props.onCardClick(props);
   }
 
-  console.log(props)
-
-  function handleLikeClick () {
+  function handleLikeClick() {
     props.onCardLike(props);
+  }
+
+  function handleCardDelete() {
+    props.onCardDelete(props);
   }
 
   return (
     <li className="cards-grid__item">
-      <button className={cardDeleteButtonClassName} type="button" aria-label="Удалить карточку"></button>
+      <button 
+        className={cardDeleteButtonClassName} 
+        type="button" 
+        aria-label="Удалить карточку"
+        onClick={handleCardDelete}>
+      </button>
       <figure className="cards-grid__figure">             
         <div className="cards-grid__image-wrapper">
           <img 

@@ -69,6 +69,7 @@ class Api {
       headers: this._headers,
     })
     .then((res) => {
+      console.log(res)
       return this._handleResult(res);
     })
   }
@@ -81,6 +82,14 @@ class Api {
     .then((res) => {
       return this._handleResult(res);
     })
+  }
+
+  changeLikeCardStatus(id, isLiked) {
+    if(isLiked) {
+      return this.addLike(id);
+    } else {
+      return this.deleteLike(id);
+    }
   }
 
   updateAvatar(data) {

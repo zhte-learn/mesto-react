@@ -6,6 +6,7 @@ import Footer from './Footer';
 import PopupWithForm from './PopupWithForm';
 import EditProfilePopup from './EditProfilePopup';
 import EditAvatarPopup from './EditAvatarPopup';
+import AddPlacePopup from './AddPlacePopup';
 import ImagePopup from './ImagePopup';
 import api from '../utils/api.js';
 import { CurrentUserContext } from '../contexts/CurrentUserContext';
@@ -16,6 +17,9 @@ function App() {
   const [ isEditAvatarPopupOpen, setIsEditAvatarPopupOpen ] = React.useState(false);
   const [ selectedCard, setSelectedCard ] = React.useState(null); 
   const [ currentUser, setCurrentUser ] = React.useState('');
+  //form Main
+  const [ cards, setCards ] = React.useState([]);
+  //
 
   React.useEffect(() => {
     api.getUserData()
@@ -24,6 +28,39 @@ function App() {
     })
     .catch((error) => alert(error)) 
   }, []);
+
+  //from Main
+  React.useEffect(() => {
+    api.getAllCards()
+    .then(data => {
+      setCards(data);
+    })
+    .catch((error) => alert(error))
+  }, []);
+
+  function handleCardLike(card) {
+    // Снова проверяем, есть ли уже лайк на этой карточке
+    const isLiked = card.likes.some(i => i._id === currentUser._id);
+    
+    // Отправляем запрос в API и получаем обновлённые данные карточки
+    api.changeLikeCardStatus(card._id, !isLiked)
+    .then((newCard) => {
+      // Формируем новый массив на основе имеющегося, подставляя в него новую карточку
+      const newCards = cards.map((c) => c._id === card._id ? newCard : c);
+      // Обновляем стейт
+      setCards(newCards);
+    });
+  }
+
+  function handleCardDelete(card) {
+    api.deleteCard(card._id)
+    .then(() => {
+      const newCards = cards.filter((c) => c._id !== card._id);
+      setCards(newCards);
+    })
+    .catch((error) => alert(error))
+  }
+  //
 
   const handleEditProfileClick = () => {
     setIsEditProfilePopupOpen(true);
@@ -82,6 +119,13 @@ function App() {
     })
   }
 
+  function handleAddPlaceSubmit(data) {
+    api.addNewCard(data)
+    .then((newCard) => {
+      setCards([newCard, ...cards]); 
+    })
+  }
+
   return (
     <CurrentUserContext.Provider value = {currentUser}>
     <div className="page">      
@@ -93,6 +137,9 @@ function App() {
             onAddPlace={handleAddPlaceClick}
             onEditAvatar={handleEditAvatarClick}
             onCardClick={handleCardClick}
+            onCardLike={handleCardLike}
+            onCardDelete={handleCardDelete}
+            cards={cards}
           />
           
           <Footer />
@@ -118,22 +165,12 @@ function App() {
         onUpdateAvatar={handleUpdateAvatar}
       />
 
-      <PopupWithForm
-        title='Новое место'
-        btnTitle='Создать'
-        name='add'
+      <AddPlacePopup 
         isOpen={isAddPlacePopupOpen}
-        onClose={closeAllPopups}
-        overlayClick={handleClosePopupOverlay}
-      >
-        <input id="name-input" name = "name" type="text" className="form__input form__input_text_place" 
-          placeholder="Название" minLength="1" maxLength="30" required />
-        <span id="name-input-error" className="form__input-error"></span>
-
-        <input id="url-input" name = "link" type="url" className="form__input form__input_text_link" 
-          placeholder="Ссылка на картинку" required />
-        <span id="url-input-error" className="form__input-error"></span>       
-      </PopupWithForm>
+        onClose={closeAllPopups} 
+        onOverlay={handleClosePopupOverlay}
+        onAddPlaceSubmit={handleAddPlaceSubmit}
+      />
 
       <PopupWithForm
         title='Вы уверены?'

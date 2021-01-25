@@ -29,6 +29,7 @@ function EditProfilePopup(props) {
       name,
       about: description,
     });
+
     props.onClose();
   } 
 
@@ -52,6 +53,7 @@ function EditProfilePopup(props) {
           maxLength="40" 
           required 
           onChange={handleChangeName}
+          //value={name}
           defaultValue={name}
         />
         <span id="name-input-error" className="form__input-error"></span>

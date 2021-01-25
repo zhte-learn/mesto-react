@@ -1,4 +1,4 @@
-function PopupWithForm ( {title, children, btnTitle, name, isOpen, onClose, overlayClick} ) {
+function PopupWithForm ( {title, children, btnTitle, name, isOpen, onClose, overlayClick, onSubmit} ) {
 
   return (
     <div 
@@ -11,10 +11,10 @@ function PopupWithForm ( {title, children, btnTitle, name, isOpen, onClose, over
           onClick={onClose}>
         </button>
           
-        <form className={`form form_${name}`} method="POST" name={`${name}Form`} noValidate>  
+        <form className={`form form_${name}`} method="POST" name={`${name}Form`} noValidate onSubmit={onSubmit}>  
           <h3 className="popup__title form__title">{title}</h3>
           {children}
-          <button className="form__button form__button_inactive" type="submit" disabled>{btnTitle}</button>
+          <button className="form__button" type="submit">{btnTitle}</button>
         </form>
 
       </div>

@@ -4,6 +4,8 @@ import Header from './Header';
 import Main from './Main';
 import Footer from './Footer';
 import PopupWithForm from './PopupWithForm';
+import EditProfilePopup from './EditProfilePopup';
+import EditAvatarPopup from './EditAvatarPopup';
 import ImagePopup from './ImagePopup';
 import api from '../utils/api.js';
 import { CurrentUserContext } from '../contexts/CurrentUserContext';
@@ -13,13 +15,11 @@ function App() {
   const [ isAddPlacePopupOpen, setIsAddPlacePopupOpen ] = React.useState(false);
   const [ isEditAvatarPopupOpen, setIsEditAvatarPopupOpen ] = React.useState(false);
   const [ selectedCard, setSelectedCard ] = React.useState(null); 
-
   const [ currentUser, setCurrentUser ] = React.useState('');
 
   React.useEffect(() => {
     api.getUserData()
     .then(userData => {
-      //console.log(userData);
       setCurrentUser(userData);
     })
     .catch((error) => alert(error)) 
@@ -67,20 +67,35 @@ function App() {
     }
   })
 
+  function handleUpdateUser(userData) {
+    api.updateUserData(userData)
+    .then((newUserData)=> {
+      setCurrentUser(newUserData);
+    })
+    .catch((error) => alert(error))
+  }
+
+  function handleUpdateAvatar(data) {
+    api.updateAvatar(data)
+    .then((newData) => {
+      setCurrentUser(newData);
+    })
+  }
+
   return (
+    <CurrentUserContext.Provider value = {currentUser}>
     <div className="page">      
       <Header />
 
-      <div className="page__container">
-        <CurrentUserContext.Provider value = {currentUser}>
+      <div className="page__container">  
           <Main
             onEditProfile={handleEditProfileClick}
             onAddPlace={handleAddPlaceClick}
             onEditAvatar={handleEditAvatarClick}
             onCardClick={handleCardClick}
           />
-        </CurrentUserContext.Provider>
-        <Footer />
+          
+          <Footer />
       </div>
 
       <ImagePopup 
@@ -89,22 +104,19 @@ function App() {
         overlayClick={handleClosePopupOverlay}
       />
 
-      <PopupWithForm 
-        title='Редактировать профиль'
-        btnTitle='Сохранить'
-        name='edit'
-        isOpen={isEditProfilePopupOpen}
-        onClose={closeAllPopups}
-        overlayClick={handleClosePopupOverlay}
-      >
-        <input id="name-input" name="name" type="text" className="form__input form__input_text_name" 
-          placeholder="Имя" minLength="2" maxLength="40" required />
-        <span id="name-input-error" className="form__input-error"></span>
+      <EditProfilePopup 
+        isOpen={isEditProfilePopupOpen} 
+        onClose={closeAllPopups} 
+        onOverlay={handleClosePopupOverlay}
+        onUpdateUser={handleUpdateUser}
+      />
 
-        <input id="about-input" name="about" type="text" className="form__input form__input_text_job" 
-          placeholder="Род деятельности" minLength="2" maxLength="200" required />
-        <span id="about-input-error" className="form__input-error"></span>
-      </PopupWithForm>
+      <EditAvatarPopup
+        isOpen={isEditAvatarPopupOpen}
+        onClose={closeAllPopups}
+        onOverlay={handleClosePopupOverlay}
+        onUpdateAvatar={handleUpdateAvatar}
+      />
 
       <PopupWithForm
         title='Новое место'
@@ -124,19 +136,6 @@ function App() {
       </PopupWithForm>
 
       <PopupWithForm
-        title='Обновить аватар'
-        btnTitle='Сохранить'
-        name='update-avatar'
-        isOpen={isEditAvatarPopupOpen}
-        onClose={closeAllPopups}
-        overlayClick={handleClosePopupOverlay}
-      >  
-        <input id="url-input" name="avatar" type="url" className="form__input form__input_text_link" 
-          placeholder="Ссылка на картинку" required />
-        <span id="url-input-error" className="form__input-error"></span>  
-      </PopupWithForm>
-
-      <PopupWithForm
         title='Вы уверены?'
         btnTitle='Да'
         name='confirm'
@@ -144,8 +143,9 @@ function App() {
         onClose={closeAllPopups}
         overlayClick={handleClosePopupOverlay}
       />
-
+     
     </div>
+    </CurrentUserContext.Provider>
   );
 }
 

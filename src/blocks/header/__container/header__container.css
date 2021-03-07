@@ -1,3 +1,8 @@
+.header__container {
+  display: flex;
+  justify-content: space-between;
+}
+
 @media screen and (max-width: 515px) {
   .header__container {
     max-width: 282px;

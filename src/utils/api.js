@@ -69,7 +69,6 @@ class Api {
       headers: this._headers,
     })
     .then((res) => {
-      //console.log(res)
       return this._handleResult(res);
     })
   }

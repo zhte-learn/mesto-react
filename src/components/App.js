@@ -1,4 +1,5 @@
 import React from 'react';
+import { Route, Switch, useHistory } from 'react-router-dom';
 import '../index.css';
 import Header from './Header';
 import Main from './Main';
@@ -9,6 +10,11 @@ import AddPlacePopup from './AddPlacePopup';
 import ConfirmDeletePopup from './ConfirmDeletePopup';
 import ImagePopup from './ImagePopup';
 import api from '../utils/api.js';
+import auth from '../utils/auth.js';
+import ProtectedRoute from './ProtectedRoute';
+import Login from './Login';
+import Register from './Register';
+import InfoTooltip from './InfoTooltip';
 import { CurrentUserContext } from '../contexts/CurrentUserContext';
 
 function App() {
@@ -20,33 +26,42 @@ function App() {
   const [ cardToDelete, setCardToDelete ] = React.useState(null);
   const [ currentUser, setCurrentUser ] = React.useState('');
   const [ cards, setCards ] = React.useState([]);
+  const [ isLoggedIn, setIsLoggedIn ] = React.useState(false);
+  const [ isInfoTooltipOpen, setIsInfoTooltipOpen ] = React.useState(false);
+  const [ isRegisterSuccess, setIsRegisterSuccess ] = React.useState(false);
+  const [ email, setEmail ] = React.useState('');
+  const history = useHistory();
 
   React.useEffect(() => {
-    api.getUserData()
-    .then(userData => {
-      setCurrentUser(userData);
-    })
-    .catch((error) => alert(error)) 
-  }, []);
+    if (isLoggedIn) {
+      api.getUserData()
+      .then(userData => {
+        setCurrentUser(userData);
+      })
+      .catch((error) => alert(error)) 
+    }
+  }, [isLoggedIn]);
 
   React.useEffect(() => {
-    api.getAllCards()
-    .then(data => {
-      setCards(data);
-    })
-    .catch((error) => alert(error))
-  }, []);
+    if (isLoggedIn) {
+      api.getAllCards()
+      .then(data => {
+        setCards(data);
+      })
+      .catch((error) => alert(error))
+    }
+  }, [isLoggedIn]);
+
+  React.useEffect(() => {
+    tockenCheck();
+  })
 
   function handleCardLike(card) {
-    // Снова проверяем, есть ли уже лайк на этой карточке
     const isLiked = card.likes.some(i => i._id === currentUser._id);
     
-    // Отправляем запрос в API и получаем обновлённые данные карточки
     api.changeLikeCardStatus(card._id, !isLiked)
     .then((newCard) => {
-      // Формируем новый массив на основе имеющегося, подставляя в него новую карточку
       const newCards = cards.map((c) => c._id === card._id ? newCard : c);
-      // Обновляем стейт
       setCards(newCards);
     })
     .catch((error) => alert(error))
@@ -94,6 +109,7 @@ function App() {
     setIsEditAvatarPopupOpen(false);
     setIsAddPlacePopupOpen(false);
     setIsConfirmDeletePopupOpen(false);
+    setIsInfoTooltipOpen(false);
     setSelectedCard(null);
     setCardToDelete(null);
   };
@@ -134,13 +150,49 @@ function App() {
     .catch((error) => alert(error))
   }
 
+  const tockenCheck = () => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      auth.getContent(token)
+      .then((res) => {
+        setEmail(res.data.email);
+        setIsLoggedIn(true);
+        history.push('/');
+      })
+      .catch(() => {
+        history.push('/sign-in');
+      })  
+    }
+  }
+
   return (
     <CurrentUserContext.Provider value = {currentUser}>
     <div className="page">      
-      <Header />
+      <Header
+        isLoggedIn={isLoggedIn}
+        setIsLoggedIn={setIsLoggedIn}
+        email={email}
+      />
 
-      <div className="page__container">  
-          <Main
+      <div className="page__container">
+        <Switch>
+          <Route path ='/sign-up'>
+            <Register
+              isInfoTooltipShow={setIsInfoTooltipOpen}
+              isRegisterSuccess={setIsRegisterSuccess}
+            />
+          </Route>
+          <Route path = '/sign-in'>
+            <Login
+              setIsLoggedIn={setIsLoggedIn} 
+              isInfoTooltipShow={setIsInfoTooltipOpen}
+              isRegisterSuccess={setIsRegisterSuccess}
+            />
+          </Route>
+          <ProtectedRoute 
+            path = '/' 
+            isLoggedIn={isLoggedIn}
+            component={Main}
             onEditProfile={handleEditProfileClick}
             onAddPlace={handleAddPlaceClick}
             onEditAvatar={handleEditAvatarClick}
@@ -149,45 +201,52 @@ function App() {
             onCardDelete={handleDeleteCardClick}
             cards={cards}
           />
+        </Switch>  
           
-          <Footer />
+        <Footer />
+
+        <ImagePopup 
+          card={selectedCard}
+          onClose={closeAllPopups}
+          overlayClick={handleClosePopupOverlay}
+        />
+
+        <EditProfilePopup 
+          isOpen={isEditProfilePopupOpen} 
+          onClose={closeAllPopups} 
+          onOverlay={handleClosePopupOverlay}
+          onUpdateUser={handleUpdateUser}
+        />
+
+        <EditAvatarPopup
+          isOpen={isEditAvatarPopupOpen}
+          onClose={closeAllPopups}
+          onOverlay={handleClosePopupOverlay}
+          onUpdateAvatar={handleUpdateAvatar}
+        />
+
+        <AddPlacePopup 
+          isOpen={isAddPlacePopupOpen}
+          onClose={closeAllPopups} 
+          onOverlay={handleClosePopupOverlay}
+          onAddPlaceSubmit={handleAddPlaceSubmit}
+        />
+
+        <ConfirmDeletePopup 
+          isOpen={isConfirmDeletePopupOpen}
+          onClose={closeAllPopups} 
+          onOverlay={handleClosePopupOverlay}
+          onConfirmDeleteSubmit={handleCardDelete}
+          card={cardToDelete}
+        />
+
+        <InfoTooltip 
+          isOpen={isInfoTooltipOpen}
+          onOverlay={handleClosePopupOverlay}
+          onClose={closeAllPopups}
+          isSuccess={isRegisterSuccess}
+        />        
       </div>
-
-      <ImagePopup 
-        card={selectedCard}
-        onClose={closeAllPopups}
-        overlayClick={handleClosePopupOverlay}
-      />
-
-      <EditProfilePopup 
-        isOpen={isEditProfilePopupOpen} 
-        onClose={closeAllPopups} 
-        onOverlay={handleClosePopupOverlay}
-        onUpdateUser={handleUpdateUser}
-      />
-
-      <EditAvatarPopup
-        isOpen={isEditAvatarPopupOpen}
-        onClose={closeAllPopups}
-        onOverlay={handleClosePopupOverlay}
-        onUpdateAvatar={handleUpdateAvatar}
-      />
-
-      <AddPlacePopup 
-        isOpen={isAddPlacePopupOpen}
-        onClose={closeAllPopups} 
-        onOverlay={handleClosePopupOverlay}
-        onAddPlaceSubmit={handleAddPlaceSubmit}
-      />
-
-      <ConfirmDeletePopup 
-        isOpen={isConfirmDeletePopupOpen}
-        onClose={closeAllPopups} 
-        onOverlay={handleClosePopupOverlay}
-        onConfirmDeleteSubmit={handleCardDelete}
-        card={cardToDelete}
-      />
-
     </div>
     </CurrentUserContext.Provider>
   );

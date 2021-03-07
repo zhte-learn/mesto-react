@@ -1,8 +1,7 @@
 function PopupWithForm ( {title, children, btnTitle, name, isOpen, onClose, overlayClick, onSubmit} ) {
 
   return (
-    <div 
-    className={ `popup popup_${name} ${isOpen && 'popup_opened'}` } onClick={overlayClick}>
+    <div className={ `popup popup_${name} ${isOpen && 'popup_opened'}` } onClick={overlayClick}>
       <div className="popup__container popup__container_with-form"> 
         <button
           className="popup__close"

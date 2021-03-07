@@ -36,7 +36,8 @@ function Card (props) {
         <div className="cards-grid__image-wrapper">
           <img 
             className="cards-grid__image" 
-            src={props.link} alt={`Изображение ${props.name}`}
+            src={props.link}
+            alt={`Изображение ${props.name}`}
             onClick={handleClick}
           />
         </div>

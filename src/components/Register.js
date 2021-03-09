@@ -1,13 +1,10 @@
 import React from 'react';
-import { Link, useHistory } from 'react-router-dom';
-import auth from '../utils/auth.js';
+import { Link } from 'react-router-dom';
 
 
 function Register (props) {
-  console.log(props)
   const [ email, setEmail ] = React.useState('');
   const [ password, setPassword ] = React.useState('');
-  const history = useHistory();
   
   function handleChangeEmail(e) {
     setEmail(e.target.value);
@@ -19,24 +16,16 @@ function Register (props) {
 
   function handleSubmit(e) {
     e.preventDefault();
-    auth.register(email, password)
-    .then((res) => {
-      props.isRegisterSuccess(true);
-      props.isInfoTooltipShow(true);
-      history.push('/sign-in'); 
-    })
-    .catch(() => {
-      props.isRegisterSuccess(false);
-      props.isInfoTooltipShow(true);
-    })
+
+    props.onRegister(email, password);
   } 
 
   return (
     <div className="sign">
       <h1 className="sign__header">Регистрация</h1>
       <form className="sign__form" onSubmit={handleSubmit}>
-        <input type="text" placeholder="Email" onChange={handleChangeEmail}></input>
-        <input type="password" placeholder="Пароль" onChange={handleChangePassword}></input>
+        <input type="text" placeholder="Email" value={email} onChange={handleChangeEmail}></input>
+        <input type="password" placeholder="Пароль" value={password} onChange={handleChangePassword}></input>
         <button className="form__button form__button_white">Зарегистрироваться</button>
       </form>
       <p className="sign__text">Уже зарегистрированы? 

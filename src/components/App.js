@@ -53,8 +53,23 @@ function App() {
   }, [isLoggedIn]);
 
   React.useEffect(() => {
+      const tockenCheck = () => {
+      const token = localStorage.getItem('token');
+      if (token) {
+        auth.getContent(token)
+        .then((res) => {
+          setEmail(res.data.email);
+          setIsLoggedIn(true);
+          history.push('/');
+        })
+        .catch(() => {
+          history.push('/sign-in');
+        })  
+      }
+    }
+
     tockenCheck();
-  })
+  }, [history]);
 
   function handleCardLike(card) {
     const isLiked = card.likes.some(i => i._id === currentUser._id);
@@ -150,19 +165,29 @@ function App() {
     .catch((error) => alert(error))
   }
 
-  const tockenCheck = () => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      auth.getContent(token)
-      .then((res) => {
-        setEmail(res.data.email);
-        setIsLoggedIn(true);
-        history.push('/');
-      })
-      .catch(() => {
-        history.push('/sign-in');
-      })  
-    }
+  function onRegister(email, password) {
+    auth.register(email, password)
+    .then((res) => {
+      setIsRegisterSuccess(true);
+      setIsInfoTooltipOpen(true);
+      history.push('/sign-in'); 
+    })
+    .catch(() => {
+      setIsRegisterSuccess(false);
+      setIsInfoTooltipOpen(true);
+    })
+  }
+
+  function onLogin(email, password) {
+    auth.authorize(email, password)
+    .then(() => {
+      setIsLoggedIn(true);
+      history.push('/');
+    })
+    .catch(() => {
+      setIsRegisterSuccess(false);
+      setIsInfoTooltipOpen(true);
+    })
   }
 
   return (
@@ -178,15 +203,12 @@ function App() {
         <Switch>
           <Route path ='/sign-up'>
             <Register
-              isInfoTooltipShow={setIsInfoTooltipOpen}
-              isRegisterSuccess={setIsRegisterSuccess}
+              onRegister={onRegister}
             />
           </Route>
           <Route path = '/sign-in'>
             <Login
-              setIsLoggedIn={setIsLoggedIn} 
-              isInfoTooltipShow={setIsInfoTooltipOpen}
-              isRegisterSuccess={setIsRegisterSuccess}
+              onLogin={onLogin}
             />
           </Route>
           <ProtectedRoute 
